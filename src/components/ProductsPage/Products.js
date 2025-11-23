@@ -25,8 +25,8 @@ export default function Products({ products, addProduct, updateProduct }) {
   }, [products]);
 
   return (
-    <div className="w-full max-w-6xl mt-6 grid grid-cols-12 gap-4">
-      <div className="col-span-4 bg-white p-4 rounded-xl shadow border border-gray-200 h-[80vh] flex flex-col">
+    <div className="w-full max-w-6xl mt-6 grid grid-cols-1 md:grid-cols-12 gap-4">
+      <div className="md:col-span-4 bg-white p-4 rounded-xl shadow border border-gray-200 md:h-[80vh] flex flex-col">
         <h2 className="text-xl font-bold text-blue-600 mb-3">Products</h2>
 
         <div className="space-y-2">
@@ -41,7 +41,7 @@ export default function Products({ products, addProduct, updateProduct }) {
           ))}
         </div>
 
-        <div className="mt-3 flex-1 overflow-y-auto space-y-2">
+        <div className="mt-3 flex-1 md:overflow-y-auto space-y-2">
           {display.map((p) => (
             <ProductListItem
               key={p.id}
@@ -60,7 +60,7 @@ export default function Products({ products, addProduct, updateProduct }) {
         </button>
       </div>
 
-      <main className="col-span-8 bg-white p-6 rounded-xl shadow border border-gray-200 h-[80vh] overflow-y-auto">
+      <main className="md:col-span-8 bg-white p-6 rounded-xl shadow border border-gray-200 md:h-[80vh] md:overflow-y-auto">
         {selectedProduct ? (
           <ProductEditor
             product={selectedProduct}
