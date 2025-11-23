@@ -104,7 +104,7 @@ export default function Home({ products, users, updateUser }) {
 
   return (
     <div className="w-full max-w-6xl mt-6 grid grid-cols-1 md:grid-cols-12 gap-4">
-      <div className="md:col-span-8">
+      <div className="md:col-span-8 flex flex-col h-[80vh]">
         <div className="flex flex-wrap gap-2 mb-4">
           <button
             onClick={() => setCategory("all")}
@@ -152,25 +152,28 @@ export default function Home({ products, users, updateUser }) {
           className="p-2 border rounded w-full mb-4"
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredProducts.map((p) => (
-            <div
-              key={p.id}
-              onClick={() => addToCart(p)}
-              className="p-3 bg-white border rounded-xl shadow hover:shadow-lg cursor-pointer flex flex-col items-center"
-            >
-              {p.img && (
-                <img
-                  src={p.img}
-                  className="w-24 h-24 object-cover rounded-lg mb-2"
-                  alt={p.name}
-                />
-              )}
-              <p className="font-bold text-center">{p.name}</p>
-              <p className="text-gray-500">${p.price}</p>
-              <span className="text-xs text-blue-600 mt-1">Click to add</span>
-            </div>
-          ))}
+        {/* SCROLLABLE PRODUCT LIST */}
+        <div className="flex-1 max-h-[70vh] overflow-y-auto pr-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredProducts.map((p) => (
+              <div
+                key={p.id}
+                onClick={() => addToCart(p)}
+                className="p-3 bg-white border rounded-xl shadow hover:shadow-lg cursor-pointer flex flex-col items-center"
+              >
+                {p.img && (
+                  <img
+                    src={p.img}
+                    className="w-24 h-24 object-cover rounded-lg mb-2"
+                    alt={p.name}
+                  />
+                )}
+                <p className="font-bold text-center">{p.name}</p>
+                <p className="text-gray-500">${p.price}</p>
+                <span className="text-xs text-blue-600 mt-1">Click to add</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
