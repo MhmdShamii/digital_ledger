@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/digital-ledger/static/css/main.2dbbf385.css",
-    "main.js": "/digital-ledger/static/js/main.6aba42a7.js",
-    "index.html": "/digital-ledger/index.html",
-    "main.2dbbf385.css.map": "/digital-ledger/static/css/main.2dbbf385.css.map",
-    "main.6aba42a7.js.map": "/digital-ledger/static/js/main.6aba42a7.js.map"
+    "main.css": "/digital_ledger/static/css/main.2dbbf385.css",
+    "main.js": "/digital_ledger/static/js/main.a313ab28.js",
+    "index.html": "/digital_ledger/index.html",
+    "main.2dbbf385.css.map": "/digital_ledger/static/css/main.2dbbf385.css.map",
+    "main.a313ab28.js.map": "/digital_ledger/static/js/main.a313ab28.js.map"
   },
   "entrypoints": [
     "static/css/main.2dbbf385.css",
-    "static/js/main.6aba42a7.js"
+    "static/js/main.a313ab28.js"
   ]
 }
