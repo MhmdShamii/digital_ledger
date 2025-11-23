@@ -27,7 +27,7 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/digital-ledger">
       <div className="min-h-screen w-full bg-gray-200 flex flex-col items-center p-4 box-border">
         <NavBar />
         <Routes>
