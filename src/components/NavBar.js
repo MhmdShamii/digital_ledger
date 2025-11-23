@@ -5,6 +5,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 
 export default function NavBar() {
+  //eslint-disable-next-line
   const [selected, setSelected] = useState("home");
   const [open, setOpen] = useState(false);
 
