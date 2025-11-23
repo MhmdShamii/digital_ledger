@@ -29,6 +29,7 @@ export default function Users({ users, products, addUser, updateUser }) {
       })
     );
   }
+
   function handleSearch(input) {
     setInput(input);
 
@@ -47,6 +48,7 @@ export default function Users({ users, products, addUser, updateUser }) {
       setSelectedUser(user);
     }
   }
+
   function handleAddUser(user) {
     addUser(user);
     setInput("");
@@ -81,8 +83,8 @@ export default function Users({ users, products, addUser, updateUser }) {
   }
 
   return (
-    <div className="w-full max-w-6xl mt-6 grid grid-cols-12 gap-4">
-      <div className="col-span-4 bg-white rounded-xl shadow border border-gray-200 p-4 h-[80vh] flex flex-col">
+    <div className="w-full max-w-6xl mt-6 grid grid-cols-1 md:grid-cols-12 gap-4">
+      <div className="md:col-span-4 bg-white rounded-xl shadow border border-gray-200 p-4 md:h-[80vh] flex flex-col">
         <h2 className="text-xl font-bold mb-3 text-blue-600">Users</h2>
 
         <div className="flex items-center gap-2">
@@ -96,7 +98,7 @@ export default function Users({ users, products, addUser, updateUser }) {
           <SearchIcon className="text-blue-500" />
         </div>
 
-        <div className="space-y-2 mt-3 flex-1 overflow-y-auto">
+        <div className="space-y-2 mt-3 flex-1 md:overflow-y-auto">
           {usersToDisplay.map((user) => {
             return (
               <UserDisplay
@@ -108,8 +110,9 @@ export default function Users({ users, products, addUser, updateUser }) {
             );
           })}
         </div>
+
         <button
-          className=" w-full bg-blue-500 p-2 rounded-full text-white flex items-center justify-center gap-2 mt-2 shadow-md"
+          className="w-full bg-blue-500 p-2 rounded-full text-white flex items-center justify-center gap-2 mt-2 shadow-md"
           onClick={() => setAddUserIsOpen(true)}
         >
           add User
@@ -125,21 +128,19 @@ export default function Users({ users, products, addUser, updateUser }) {
         onAdd={handleAddUser}
       />
 
-      <main className="col-span-8 bg-white rounded-xl shadow border border-gray-200 p-6 h-[80vh] overflow-y-auto space-y-2">
-        <UserDetails
-          user={selectedUser}
-          products={products}
-          // updateUsersArray={UpdatetUsersArray}
-        />
+      <main className="md:col-span-8 bg-white rounded-xl shadow border border-gray-200 p-6 md:h-[80vh] md:overflow-y-auto space-y-2">
+        <UserDetails user={selectedUser} products={products} />
+
         {selectedUser && (
           <button
             onClick={() => setPaymentOpen(true)}
-            className="mb-4 bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600"
+            className="bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600 w-full sm:w-auto"
           >
             Manage Balance
           </button>
         )}
       </main>
+
       <PaymentComponent
         isOpen={paymentOpen}
         onClose={() => setPaymentOpen(false)}
