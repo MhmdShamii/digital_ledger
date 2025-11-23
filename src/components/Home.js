@@ -103,9 +103,9 @@ export default function Home({ products, users, updateUser }) {
   }
 
   return (
-    <div className="w-full max-w-6xl mt-6 grid grid-cols-12 gap-4">
-      <div className="col-span-8">
-        <div className="flex gap-2 mb-4">
+    <div className="w-full max-w-6xl mt-6 grid grid-cols-1 md:grid-cols-12 gap-4">
+      <div className="md:col-span-8">
+        <div className="flex flex-wrap gap-2 mb-4">
           <button
             onClick={() => setCategory("all")}
             className={`px-4 py-2 rounded-full ${
@@ -152,7 +152,7 @@ export default function Home({ products, users, updateUser }) {
           className="p-2 border rounded w-full mb-4"
         />
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredProducts.map((p) => (
             <div
               key={p.id}
@@ -166,7 +166,7 @@ export default function Home({ products, users, updateUser }) {
                   alt={p.name}
                 />
               )}
-              <p className="font-bold">{p.name}</p>
+              <p className="font-bold text-center">{p.name}</p>
               <p className="text-gray-500">${p.price}</p>
               <span className="text-xs text-blue-600 mt-1">Click to add</span>
             </div>
@@ -174,10 +174,10 @@ export default function Home({ products, users, updateUser }) {
         </div>
       </div>
 
-      <div className="col-span-4 bg-white p-4 rounded-xl shadow border h-[80vh] flex flex-col">
+      <div className="md:col-span-4 bg-white p-4 rounded-xl shadow border md:h-[80vh] flex flex-col">
         <h2 className="text-xl font-bold text-blue-600">Cart</h2>
 
-        <div className="mt-2 flex-1 overflow-y-auto space-y-2">
+        <div className="mt-2 flex-1 md:overflow-y-auto space-y-2">
           {cart.map((i) => (
             <div
               key={i.id}
@@ -208,7 +208,7 @@ export default function Home({ products, users, updateUser }) {
           ))}
         </div>
 
-        <div className="p-3 border rounded-lg">
+        <div className="p-3 border rounded-lg mt-2">
           <p className="font-semibold">Total: ${calculateTotal().toFixed(2)}</p>
         </div>
 
@@ -245,7 +245,7 @@ export default function Home({ products, users, updateUser }) {
           </div>
         )}
 
-        <div className="flex gap-2 mt-3">
+        <div className="flex flex-col sm:flex-row gap-2 mt-3">
           <button
             className="flex-1 bg-green-500 text-white p-2 rounded-full"
             onClick={() => assignPurchase(true)}
