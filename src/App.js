@@ -20,6 +20,23 @@ function App() {
     setUserArr([]);
   }
 
+  useEffect(() => {
+    async function fetchProducts() {
+      const saved = localStorage.getItem("user");
+      if (!saved) return;
+
+      const user = JSON.parse(saved);
+
+      const res = await axios.get("http://127.0.0.1:5000/products", {
+        params: { store_id: user.id },
+      });
+
+      setProductsArr(res.data.products || []);
+    }
+
+    fetchProducts().catch(console.log);
+  }, []);
+
   // restore session
   useEffect(() => {
     const saved = localStorage.getItem("user");
@@ -55,11 +72,12 @@ function App() {
 
   // products stay same (MVP)
   function addProduct(product) {
-    setProductsArr((prev) => [...prev, product]);
+    setProductsArr((prev) => [product, ...prev]);
   }
+
   function updateProduct(updated) {
     setProductsArr((prev) =>
-      prev.map((p) => (p.id === updated.id ? updated : p))
+      prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p))
     );
   }
 

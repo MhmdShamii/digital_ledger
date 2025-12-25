@@ -1,33 +1,51 @@
 import { useState } from "react";
+import axios from "axios";
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function AddProductModal({ isOpen, onClose, onAdd }) {
   const [form, setForm] = useState({
     name: "",
     price: "",
     type: "snacks",
-    img: null,
+    img: null, // base64 string
   });
 
-  function handleImg(e) {
+  async function handleImg(e) {
     const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setForm({ ...form, img: url });
-    }
+    if (!file) return;
+
+    const base64 = await fileToBase64(file);
+    setForm((prev) => ({ ...prev, img: base64 }));
   }
 
-  function handleAdd() {
-    const newProduct = {
-      id: Date.now(),
-      name: form.name,
-      price: Number(form.price),
-      type: form.type,
-      img: form.img,
-    };
+  async function handleAdd() {
+    if (!form.name.trim()) return;
 
-    onAdd(newProduct);
-    setForm({ name: "", price: "", type: "snacks", img: null });
-    onClose();
+    const storeId = JSON.parse(localStorage.getItem("user")).id;
+
+    try {
+      const res = await axios.post("http://127.0.0.1:5000/products", {
+        name: form.name.trim(),
+        price: Number(form.price) || 0,
+        type: form.type,
+        img: form.img, // ✅ base64 saved in DB
+        store_id: storeId,
+      });
+
+      onAdd(res.data.product);
+      setForm({ name: "", price: "", type: "snacks", img: null });
+      onClose();
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   if (!isOpen) return null;
