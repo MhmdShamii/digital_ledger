@@ -4,7 +4,7 @@ import Home from "./components/Home";
 import Products from "./components/ProductsPage/Products";
 import Users from "./components/usersPage/Users";
 import { useEffect, useState } from "react";
-import SignIn from "./auth/SignIn";
+import SignIn from "./auth/SignIn.js";
 
 function App() {
   const [userArr, setUserArr] = useState([]);

@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useState } from "react";
 
 export default function AddUser({ isOpen, onClose, onAdd }) {
@@ -11,27 +12,41 @@ export default function AddUser({ isOpen, onClose, onAdd }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  function handleSubmit(e) {
-    e.preventDefault();
+  async function adduser(name, phone, email) {
+    const balance = 0;
+    const storeId = JSON.parse(localStorage.getItem("user")).id;
 
+    try {
+      const res = await axios.post("http://127.0.0.1:5000/adduser", {
+        name,
+        phone,
+        email,
+        balance,
+        store_id: storeId,
+      });
+      console.log(res.data.user);
+      return res.data.user;
+    } catch (e) {
+      console.log(e);
+    } finally {
+      console.log("request completed");
+    }
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
     if (!form.name.trim() || !form.phone.trim()) return;
 
-    const newUser = {
-      id: Date.now(), // simple unique id
-      name: form.name.trim(),
-      email: form.email.trim(),
-      phone: form.phone.trim(),
-      credit: 0,
-      totalOwed: 0,
-      history: [],
-    };
+    const createdUser = await adduser(
+      form.name.trim(),
+      form.phone.trim(),
+      form.email.trim()
+    );
 
-    onAdd(newUser);
-
+    onAdd(createdUser);
     setForm({ name: "", email: "", phone: "" });
     onClose();
   }
-
   if (!isOpen) return null;
 
   return (
