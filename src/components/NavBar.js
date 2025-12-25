@@ -22,7 +22,7 @@ export default function NavBar({ logout, currentUser }) {
     <nav className="bg-gray-100 p-3 mt-2 rounded-full shadow-lg text-gray-800 border border-gray-300 flex items-center justify-between w-full max-w-6xl relative">
       <h1 className="px-3 text-blue-700 font-bold">
         Digital Ledger "
-        <span className="text-green-500">{currentUser.store_name}</span>"
+        <span className="text-green-500">{currentUser?.store_name}</span>"
       </h1>
 
       <div className="hidden md:flex gap-3 justify-center items-center">

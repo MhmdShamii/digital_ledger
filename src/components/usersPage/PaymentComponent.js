@@ -1,30 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
-export default function PaymentModal({ isOpen, onClose, user, onConfirm }) {
+export default function PaymentComponent({ isOpen, onClose, user, onConfirm }) {
   const [amount, setAmount] = useState("");
   const [extraMode, setExtraMode] = useState("credit");
   const [owed, setOwed] = useState(0);
 
   useEffect(() => {
     if (user) {
-      setOwed(user.totalOwed);
+      const bal = Number(user.balance) || 0;
+      setOwed(bal < 0 ? Math.abs(bal) : 0);
     }
   }, [user]);
 
   if (!isOpen || !user) return null;
 
   const numAmount = parseFloat(amount) || 0;
-  const isOverpay = numAmount > owed;
+  const isOverpay = owed > 0 && numAmount > owed;
   const extra = isOverpay ? numAmount - owed : 0;
 
   function handleSubmit(e) {
     e.preventDefault();
     if (numAmount <= 0) return;
 
-    onConfirm({
-      paid: numAmount,
-      extraMode,
-    });
+    onConfirm({ paid: numAmount, extraMode });
 
     setAmount("");
     setExtraMode("credit");

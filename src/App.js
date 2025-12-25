@@ -5,6 +5,7 @@ import Products from "./components/ProductsPage/Products";
 import Users from "./components/usersPage/Users";
 import { useEffect, useState } from "react";
 import SignIn from "./auth/SignIn.js";
+import axios from "axios";
 
 function App() {
   const [userArr, setUserArr] = useState([]);
@@ -13,34 +14,53 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
 
   function logout() {
+    localStorage.removeItem("user");
     setLoggedIn(false);
     setCurrentUser(null);
-    localStorage.removeItem("user");
+    setUserArr([]);
   }
 
+  // restore session
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
+    const saved = localStorage.getItem("user");
+    if (saved) {
+      setCurrentUser(JSON.parse(saved));
       setLoggedIn(true);
     }
   }, []);
 
+  // fetch users once when logged in
+  useEffect(() => {
+    async function fetchUsers() {
+      if (!currentUser) return;
+
+      const res = await axios.get("http://127.0.0.1:5000/users", {
+        params: { store_id: currentUser.id },
+      });
+
+      const list = res.data.users ?? res.data; // supports both shapes
+      setUserArr(Array.isArray(list) ? list : []);
+    }
+
+    fetchUsers().catch(console.log);
+  }, [currentUser]);
+
   function addUser(user) {
-    setUserArr((prev) => [...prev, user]);
+    setUserArr((prev) => [user, ...prev]);
   }
+
   function updateUser(updated) {
     setUserArr((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
   }
 
+  // products stay same (MVP)
+  function addProduct(product) {
+    setProductsArr((prev) => [...prev, product]);
+  }
   function updateProduct(updated) {
     setProductsArr((prev) =>
       prev.map((p) => (p.id === updated.id ? updated : p))
     );
-  }
-
-  function addProduct(product) {
-    setProductsArr((prev) => [...prev, product]);
   }
 
   return (
@@ -51,10 +71,17 @@ function App() {
         } box-border`}
       >
         {!logedIn ? (
-          <SignIn setIfLoggedIn={setLoggedIn} />
+          <SignIn
+            setIfLoggedIn={(val) => {
+              setLoggedIn(val);
+              const saved = localStorage.getItem("user");
+              if (saved) setCurrentUser(JSON.parse(saved));
+            }}
+          />
         ) : (
           <>
             <NavBar logout={logout} currentUser={currentUser} />
+
             <Routes>
               <Route
                 path="/"
@@ -66,6 +93,7 @@ function App() {
                   />
                 }
               />
+
               <Route
                 path="/users"
                 element={
@@ -77,6 +105,7 @@ function App() {
                   />
                 }
               />
+
               <Route
                 path="/products"
                 element={

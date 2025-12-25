@@ -5,136 +5,124 @@ import UserDisplay from "./UserDisplay";
 import UserDetails from "./UserDetails";
 import AddUser from "./AddUser";
 import PaymentComponent from "./PaymentComponent";
+import axios from "axios";
 
 export default function Users({ users, products, addUser, updateUser }) {
+  const [usersToDisplay, setUsersToDisplay] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [usersToDisplay, setUsersToDisplay] = useState(users);
   const [input, setInput] = useState("");
   const [addUserIsOpen, setAddUserIsOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
   useEffect(() => {
-    if (input.trim() === "") {
-      setUsersToDisplay(users);
-    } else {
-      handleUsersToDisplay(input);
-    }
-    // eslint-disable-next-line
+    setUsersToDisplay(users || []);
   }, [users]);
 
-  function handleUsersToDisplay(userName) {
+  function handleSearch(value) {
+    setInput(value);
+    const q = value.trim().toLowerCase();
+
+    if (!q) return setUsersToDisplay(users || []);
+
     setUsersToDisplay(
-      users.filter((user) => {
-        return user.name.toLowerCase().includes(userName.toLowerCase());
+      (users || []).filter((u) => {
+        const name = (u.name ?? "").toLowerCase();
+        const phone = (u.phone ?? "").toLowerCase();
+        const email = (u.email ?? "").toLowerCase();
+        return name.includes(q) || phone.includes(q) || email.includes(q);
       })
     );
   }
 
-  function handleSearch(input) {
-    setInput(input);
-
-    if (input.trim() === "") {
-      setUsersToDisplay(users);
-      return;
-    }
-
-    handleUsersToDisplay(input);
-  }
-
   function handleSelectdUser(user) {
-    if (user.id === selectedUser?.id) {
-      setSelectedUser(null);
-    } else {
-      setSelectedUser(user);
-    }
+    setSelectedUser(user.id === selectedUser?.id ? null : user);
   }
 
-  function handleAddUser(user) {
-    addUser(user);
+  function handleAddUser(createdUser) {
+    if (!createdUser) return;
+    addUser(createdUser);
     setInput("");
+    setAddUserIsOpen(false);
   }
 
-  function handlePay({ paid, extraMode }) {
+  // ✅ Payment -> update DB balance
+  async function handlePay({ paid, extraMode }) {
     if (!selectedUser) return;
 
-    const owed = selectedUser.totalOwed;
-    let newOwed = owed;
-    let newCredit = selectedUser.credit;
+    const currentBalance = Number(selectedUser.balance) || 0;
 
-    if (paid < owed) {
-      newOwed = owed - paid;
-    } else {
-      newOwed = 0;
-      const extra = paid - owed;
+    // pay always increases balance (reduces debt if negative)
+    let newBalance = currentBalance + Number(paid);
 
-      if (extra > 0 && extraMode === "credit") {
-        newCredit += extra;
-      }
+    // if they want cash back, don’t keep credit above 0
+    if (extraMode === "cash" && newBalance > 0) newBalance = 0;
+
+    try {
+      await axios.put(
+        `http://127.0.0.1:5000/users/${selectedUser.id}/balance`,
+        { balance: newBalance }
+      );
+
+      const updated = { ...selectedUser, balance: newBalance };
+      updateUser(updated);
+      setSelectedUser(updated);
+    } catch (e) {
+      console.log(e);
     }
-
-    const updatedUser = {
-      ...selectedUser,
-      totalOwed: newOwed,
-      credit: newCredit,
-    };
-
-    updateUser(updatedUser);
-    setSelectedUser(updatedUser);
   }
 
   return (
-    <div className="w-full max-w-6xl mt-6 grid grid-cols-1 md:grid-cols-12 gap-4">
-      <div className="md:col-span-4 bg-white rounded-xl shadow border border-gray-200 p-4 md:h-[80vh] flex flex-col">
+    <div className="w-full max-w-6xl mt-6 grid grid-cols-1 md:grid-cols-12 gap-4 min-h-[calc(100vh-130px)]">
+      <div className="md:col-span-4 bg-white rounded-xl shadow border p-4 flex flex-col">
         <h2 className="text-xl font-bold mb-3 text-blue-600">Users</h2>
 
         <div className="flex items-center gap-2">
           <input
             type="text"
             placeholder="Search users..."
-            className="p-2 border rounded w-full outline-none focus:border-blue-500"
+            className="p-2 border rounded w-full"
             value={input}
             onChange={(e) => handleSearch(e.target.value)}
           />
-          <SearchIcon className="text-blue-500" />
+          <SearchIcon />
         </div>
 
-        <div className="space-y-2 mt-3 flex-1 md:overflow-y-auto">
-          {usersToDisplay.map((user) => {
-            return (
+        <div className="space-y-2 mt-3 flex-1 overflow-y-auto">
+          {usersToDisplay.length === 0 ? (
+            <p className="text-gray-400 text-sm mt-4">No users found</p>
+          ) : (
+            usersToDisplay.map((user) => (
               <UserDisplay
                 key={user.id}
                 user={user}
                 selectUser={handleSelectdUser}
                 selectedUser={selectedUser}
               />
-            );
-          })}
+            ))
+          )}
         </div>
 
         <button
-          className="w-full bg-blue-500 p-2 rounded-full text-white flex items-center justify-center gap-2 mt-2 shadow-md"
+          className="w-full bg-blue-500 p-2 rounded-full text-white mt-2 flex items-center justify-center gap-2"
           onClick={() => setAddUserIsOpen(true)}
         >
-          add User
-          <AddIcon />
+          Add User <AddIcon />
         </button>
       </div>
 
       <AddUser
         isOpen={addUserIsOpen}
-        onClose={() => {
-          setAddUserIsOpen(!addUserIsOpen);
-        }}
+        onClose={() => setAddUserIsOpen(false)}
         onAdd={handleAddUser}
       />
 
-      <main className="md:col-span-8 bg-white rounded-xl shadow border border-gray-200 p-6 md:h-[80vh] md:overflow-y-auto space-y-2">
+      <main className="md:col-span-8 bg-white rounded-xl shadow p-6 overflow-y-auto">
         <UserDetails user={selectedUser} products={products} />
 
         {selectedUser && (
           <button
             onClick={() => setPaymentOpen(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-full shadow hover:bg-blue-600 w-full sm:w-auto"
+            className="bg-blue-500 text-white px-4 py-2 rounded-full mt-3"
           >
             Manage Balance
           </button>

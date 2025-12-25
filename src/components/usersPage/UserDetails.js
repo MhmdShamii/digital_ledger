@@ -1,16 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-export default function UserDetails({ user, products }) {
-  function getProductById(id) {
-    return products.find((p) => p.id === id);
-  }
+export default function UserDetails({ user }) {
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  if (!user) {
+  useEffect(() => {
+    async function fetchHistory() {
+      if (!user) {
+        setHistory([]);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const res = await axios.get(
+          `http://127.0.0.1:5000/users/${user.id}/history`
+        );
+        setHistory(res.data.history || []);
+      } catch (e) {
+        console.log(e);
+        setHistory([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchHistory();
+  }, [user]);
+
+  if (!user)
     return <p className="text-gray-500">Select a user to view items.</p>;
-  }
+
+  const bal = Number(user.balance) || 0;
+  const isOwed = bal < 0;
 
   return (
     <div className="space-y-4">
+      {/* TOP DATA */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">{user.name}</h2>
@@ -20,17 +47,17 @@ export default function UserDetails({ user, products }) {
         </div>
 
         <div className="text-right">
-          {user.totalOwed > 0 ? (
+          {isOwed ? (
             <>
               <p className="text-red-600 font-bold text-xl">
-                ${user.totalOwed.toFixed(2)}
+                ${Math.abs(bal).toFixed(2)}
               </p>
               <p className="text-gray-500 text-sm">Total Owed</p>
             </>
           ) : (
             <>
               <p className="text-green-600 font-bold text-xl">
-                ${user.credit.toFixed(2)}
+                ${bal.toFixed(2)}
               </p>
               <p className="text-gray-500 text-sm">Credit Balance</p>
             </>
@@ -38,39 +65,44 @@ export default function UserDetails({ user, products }) {
         </div>
       </div>
 
+      {/* HISTORY BELOW */}
       <div>
         <h3 className="text-lg font-semibold mb-2">Items History</h3>
 
-        {user.history.length === 0 ? (
+        {loading ? (
+          <p className="text-gray-400 text-sm">Loading history...</p>
+        ) : history.length === 0 ? (
           <p className="text-gray-500">No items yet.</p>
         ) : (
           <div className="space-y-2">
-            {user.history.map((h, index) => {
-              const product = getProductById(h.productId);
+            {history.map((h) => {
+              const subtotal = Number(h.total) || 0;
+              const price = Number(h.price) || 0;
 
-              const name = product?.name ?? "Unknown Product";
-              const price = product?.price ?? 0;
-              const img = product?.img ?? null;
-              const subtotal = price * h.qty;
+              const dateText = h.created_at
+                ? new Date(h.created_at).toLocaleString()
+                : "";
 
               return (
                 <div
-                  key={`${h.productId}-${h.date}-${index}`}
+                  key={h.id}
                   className="p-3 rounded-lg border border-gray-200 flex items-center justify-between hover:bg-gray-50 transition"
                 >
                   <div className="flex items-center gap-3">
-                    {img && (
+                    {h.product_img && (
                       <img
-                        src={img}
+                        src={h.product_img}
                         className="w-12 h-12 object-cover rounded-lg border"
                         alt=""
                       />
                     )}
 
                     <div>
-                      <p className="font-semibold">{name}</p>
+                      <p className="font-semibold">
+                        {h.product_name || "Unknown Product"}
+                      </p>
                       <p className="text-sm text-gray-500">
-                        Qty: {h.qty} • {h.date}
+                        Qty: {h.qty} • {dateText}
                       </p>
                     </div>
                   </div>

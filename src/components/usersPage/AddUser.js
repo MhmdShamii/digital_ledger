@@ -2,11 +2,7 @@ import axios from "axios";
 import React, { useState } from "react";
 
 export default function AddUser({ isOpen, onClose, onAdd }) {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-  });
+  const [form, setForm] = useState({ name: "", email: "", phone: "" });
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,12 +20,10 @@ export default function AddUser({ isOpen, onClose, onAdd }) {
         balance,
         store_id: storeId,
       });
-      console.log(res.data.user);
       return res.data.user;
     } catch (e) {
       console.log(e);
-    } finally {
-      console.log("request completed");
+      return null;
     }
   }
 
@@ -43,10 +37,12 @@ export default function AddUser({ isOpen, onClose, onAdd }) {
       form.email.trim()
     );
 
-    onAdd(createdUser);
+    if (createdUser) onAdd(createdUser);
+
     setForm({ name: "", email: "", phone: "" });
     onClose();
   }
+
   if (!isOpen) return null;
 
   return (
