@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Home({ products, users, updateUser }) {
   const [cart, setCart] = useState([]);
@@ -13,13 +14,11 @@ export default function Home({ products, users, updateUser }) {
   useEffect(() => {
     let result = products;
 
-    if (category !== "all") {
-      result = result.filter((p) => p.type === category);
-    }
+    if (category !== "all") result = result.filter((p) => p.type === category);
 
     if (productSearch.trim() !== "") {
       result = result.filter((p) =>
-        p.name.toLowerCase().includes(productSearch.toLowerCase())
+        (p.name || "").toLowerCase().includes(productSearch.toLowerCase())
       );
     }
 
@@ -35,7 +34,7 @@ export default function Home({ products, users, updateUser }) {
 
     setUsersFound(
       users.filter((u) =>
-        u.name.toLowerCase().includes(userSearch.toLowerCase())
+        (u.name || "").toLowerCase().includes(userSearch.toLowerCase())
       )
     );
   }, [userSearch, users]);
@@ -59,47 +58,44 @@ export default function Home({ products, users, updateUser }) {
   }
 
   function calculateTotal() {
-    return cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+    return cart.reduce((sum, i) => sum + Number(i.price) * Number(i.qty), 0);
   }
 
-  function assignPurchase(paidNow) {
+  // ✅ NEW: create purchase in backend
+  async function assignPurchase() {
     if (!selectedUser || cart.length === 0) return;
 
-    const total = calculateTotal();
-    let newCredit = selectedUser.credit;
-    let newOwed = selectedUser.totalOwed;
-    let newHistory = [...selectedUser.history];
+    const storeId = JSON.parse(localStorage.getItem("user")).id;
 
-    cart.forEach((item) => {
-      newHistory.push({
-        productId: item.id,
-        qty: item.qty,
-        date: new Date().toISOString().split("T")[0],
+    const items = cart.map((i) => ({
+      product_id: i.id,
+      qty: i.qty,
+      price: Number(i.price) || 0,
+    }));
+
+    try {
+      const res = await axios.post("http://127.0.0.1:5000/purchase", {
+        user_id: selectedUser.id,
+        store_id: storeId,
+        items,
       });
-    });
 
-    if (paidNow) {
-      if (newCredit >= total) {
-        newCredit -= total;
-      } else {
-        const diff = total - newCredit;
-        newCredit = 0;
-        newOwed += diff;
-      }
-    } else {
-      newOwed += total;
+      // backend returns updated user row
+      const updatedUser = res.data.user;
+
+      // update App users state (if you have it)
+      updateUser(updatedUser);
+
+      // update local selected user so UI updates instantly
+      setSelectedUser(updatedUser);
+
+      // reset UI
+      setCart([]);
+      setUserSearch("");
+      setUsersFound([]);
+    } catch (e) {
+      console.log(e);
     }
-
-    updateUser({
-      ...selectedUser,
-      credit: newCredit,
-      totalOwed: newOwed,
-      history: newHistory,
-    });
-
-    setCart([]);
-    setUserSearch("");
-    setSelectedUser(null);
   }
 
   return (
@@ -152,7 +148,6 @@ export default function Home({ products, users, updateUser }) {
           className="p-2 border rounded w-full mb-4"
         />
 
-        {/* SCROLLABLE PRODUCT LIST */}
         <div className="flex-1 max-h-[70vh] overflow-y-auto pr-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredProducts.map((p) => (
@@ -243,21 +238,22 @@ export default function Home({ products, users, updateUser }) {
           <div className="mt-3 p-2 border rounded">
             <p className="font-semibold">{selectedUser.name}</p>
             <p className="text-sm text-gray-500">
-              Credit: ${selectedUser.credit} • Owed: ${selectedUser.totalOwed}
+              Balance: ${Number(selectedUser.balance || 0).toFixed(2)}
             </p>
           </div>
         )}
 
+        {/* ✅ keep your two buttons visually, but both call same backend purchase for MVP */}
         <div className="flex flex-col sm:flex-row gap-2 mt-3">
           <button
             className="flex-1 bg-green-500 text-white p-2 rounded-full"
-            onClick={() => assignPurchase(true)}
+            onClick={assignPurchase}
           >
             Paid Now
           </button>
           <button
             className="flex-1 bg-blue-500 text-white p-2 rounded-full"
-            onClick={() => assignPurchase(false)}
+            onClick={assignPurchase}
           >
             Add To Balance
           </button>
