@@ -3,13 +3,28 @@ import NavBar from "./components/NavBar";
 import Home from "./components/Home";
 import Products from "./components/ProductsPage/Products";
 import Users from "./components/usersPage/Users";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SignIn from "./auth/SignIn";
 
 function App() {
   const [userArr, setUserArr] = useState([]);
   const [productsArr, setProductsArr] = useState([]);
   const [logedIn, setLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  function logout() {
+    setLoggedIn(false);
+    setCurrentUser(null);
+    localStorage.removeItem("user");
+  }
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setCurrentUser(JSON.parse(savedUser));
+      setLoggedIn(true);
+    }
+  }, []);
 
   function addUser(user) {
     setUserArr((prev) => [...prev, user]);
@@ -39,7 +54,7 @@ function App() {
           <SignIn setIfLoggedIn={setLoggedIn} />
         ) : (
           <>
-            <NavBar />
+            <NavBar logout={logout} />
             <Routes>
               <Route
                 path="/"
