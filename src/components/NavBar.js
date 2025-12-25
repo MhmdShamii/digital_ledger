@@ -4,7 +4,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 
-export default function NavBar({ logout }) {
+export default function NavBar({ logout, currentUser }) {
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
@@ -20,7 +20,10 @@ export default function NavBar({ logout }) {
 
   return (
     <nav className="bg-gray-100 p-3 mt-2 rounded-full shadow-lg text-gray-800 border border-gray-300 flex items-center justify-between w-full max-w-6xl relative">
-      <h1 className="px-3 text-blue-700 font-bold">Digital Ledger</h1>
+      <h1 className="px-3 text-blue-700 font-bold">
+        Digital Ledger "
+        <span className="text-green-500">{currentUser.store_name}</span>"
+      </h1>
 
       <div className="hidden md:flex gap-3 justify-center items-center">
         <Link

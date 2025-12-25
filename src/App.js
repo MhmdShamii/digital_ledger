@@ -54,7 +54,7 @@ function App() {
           <SignIn setIfLoggedIn={setLoggedIn} />
         ) : (
           <>
-            <NavBar logout={logout} />
+            <NavBar logout={logout} currentUser={currentUser} />
             <Routes>
               <Route
                 path="/"
