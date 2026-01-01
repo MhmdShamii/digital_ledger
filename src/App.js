@@ -89,7 +89,7 @@ function App() {
   }
 
   return (
-    <BrowserRouter basename="/digital_ledger">
+    <BrowserRouter>
       <div
         className={`min-h-screen w-full bg-gray-200 flex flex-col items-center ${
           logedIn ? "p-4" : ""
