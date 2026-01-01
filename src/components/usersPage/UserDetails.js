@@ -15,7 +15,7 @@ export default function UserDetails({ user }) {
       setLoading(true);
       try {
         const res = await axios.get(
-          `http://127.0.0.1:5000/users/${user.id}/history`
+          `https://digitalledgerbackend-production.up.railway.app/users/${user.id}/history`
         );
         setHistory(res.data.history || []);
       } catch (e) {
@@ -108,7 +108,7 @@ export default function UserDetails({ user }) {
                   </div>
 
                   <div className="text-right">
-                    <p className="font-bold">${subtotal.toFixed(2)}</p>
+                    <p className="font-bold">${(h.qty * price).toFixed(2)}</p>
                     <p className="text-xs text-gray-400">
                       ${price.toFixed(2)} each
                     </p>

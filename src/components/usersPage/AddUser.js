@@ -13,13 +13,16 @@ export default function AddUser({ isOpen, onClose, onAdd }) {
     const storeId = JSON.parse(localStorage.getItem("user")).id;
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/adduser", {
-        name,
-        phone,
-        email,
-        balance,
-        store_id: storeId,
-      });
+      const res = await axios.post(
+        "https://digitalledgerbackend-production.up.railway.app/adduser",
+        {
+          name,
+          phone,
+          email,
+          balance,
+          store_id: storeId,
+        }
+      );
       return res.data.user;
     } catch (e) {
       console.log(e);

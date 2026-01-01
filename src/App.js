@@ -28,9 +28,12 @@ function App() {
 
       const user = JSON.parse(saved);
 
-      const res = await axios.get("http://127.0.0.1:5000/products", {
-        params: { store_id: user.id },
-      });
+      const res = await axios.get(
+        "https://digitalledgerbackend-production.up.railway.app/products",
+        {
+          params: { store_id: user.id },
+        }
+      );
 
       setProductsArr(res.data.products || []);
     }
@@ -52,9 +55,12 @@ function App() {
     async function fetchUsers() {
       if (!currentUser) return;
 
-      const res = await axios.get("http://127.0.0.1:5000/users", {
-        params: { store_id: currentUser.id },
-      });
+      const res = await axios.get(
+        "https://digitalledgerbackend-production.up.railway.app/users",
+        {
+          params: { store_id: currentUser.id },
+        }
+      );
 
       const list = res.data.users ?? res.data; // supports both shapes
       setUserArr(Array.isArray(list) ? list : []);

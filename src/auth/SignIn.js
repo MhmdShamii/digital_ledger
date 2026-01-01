@@ -16,8 +16,8 @@ export default function SignIn({ setIfLoggedIn }) {
 
     try {
       const url = isRegister
-        ? "http://127.0.0.1:5000/register"
-        : "http://127.0.0.1:5000/signin";
+        ? "https://digitalledgerbackend-production.up.railway.app/register"
+        : "https://digitalledgerbackend-production.up.railway.app/signin";
 
       const payload = isRegister
         ? { store_name: storeName, email, password }

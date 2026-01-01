@@ -10,9 +10,12 @@ export default function UserManagment() {
 
   async function fetchUsers() {
     try {
-      const res = await axios.get("http://127.0.0.1:5000/users", {
-        params: { store_id: storeId },
-      });
+      const res = await axios.get(
+        "https://digitalledgerbackend-production.up.railway.app/users",
+        {
+          params: { store_id: storeId },
+        }
+      );
       setUsers(res.data.users);
     } catch (err) {
       console.error(err);
@@ -25,7 +28,9 @@ export default function UserManagment() {
     if (!window.confirm("Delete this user?")) return;
 
     try {
-      await axios.delete(`http://127.0.0.1:5000/users/${id}`);
+      await axios.delete(
+        `https://digitalledgerbackend-production.up.railway.app/users/${id}`
+      );
       setUsers((prev) => prev.filter((u) => u.id !== id));
     } catch (err) {
       alert("Failed to delete user");

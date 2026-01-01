@@ -59,7 +59,7 @@ export default function Users({ users, products, addUser, updateUser }) {
 
     try {
       await axios.put(
-        `http://127.0.0.1:5000/users/${selectedUser.id}/balance`,
+        `https://digitalledgerbackend-production.up.railway.app/users/${selectedUser.id}/balance`,
         { balance: newBalance }
       );
 

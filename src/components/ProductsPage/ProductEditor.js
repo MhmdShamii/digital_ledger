@@ -30,7 +30,7 @@ export default function ProductEditor({ product, updateProduct }) {
     setSaving(true);
     try {
       const res = await axios.put(
-        `http://127.0.0.1:5000/products/${product.id}`,
+        `https://digitalledgerbackend-production.up.railway.app/products/${product.id}`,
         {
           name: form.name,
           price: Number(form.price) || 0,

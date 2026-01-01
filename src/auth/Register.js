@@ -24,7 +24,10 @@ export default function Register({ onSuccess }) {
     }
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/register", form);
+      const res = await axios.post(
+        "https://digitalledgerbackend-production.up.railway.app/register",
+        form
+      );
 
       // auto-login behavior (optional)
       localStorage.setItem("user", JSON.stringify(res.data.user));
@@ -43,9 +46,9 @@ export default function Register({ onSuccess }) {
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
-          name="name"
+          name="store_name"
           placeholder="Store / Owner name"
-          value={form.name}
+          value={form.store_name}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />

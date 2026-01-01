@@ -10,134 +10,117 @@ export default function Home({ products, users, updateUser }) {
   const [userSearch, setUserSearch] = useState("");
   const [usersFound, setUsersFound] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [loading, setLoading] = useState(false);
 
+  // Filter products by search & category
   useEffect(() => {
     let result = products;
 
     if (category !== "all") result = result.filter((p) => p.type === category);
 
-    if (productSearch.trim() !== "") {
+    if (productSearch.trim()) {
       result = result.filter((p) =>
         (p.name || "").toLowerCase().includes(productSearch.toLowerCase())
       );
     }
 
     setFilteredProducts(result);
-  }, [productSearch, category, products]);
+  }, [products, productSearch, category]);
 
+  // Filter users by search
   useEffect(() => {
-    if (userSearch.trim() === "") {
+    if (!userSearch.trim()) {
       setUsersFound([]);
       setSelectedUser(null);
       return;
     }
 
-    setUsersFound(
-      users.filter((u) =>
-        (u.name || "").toLowerCase().includes(userSearch.toLowerCase())
-      )
+    const found = users.filter((u) =>
+      (u.name || "").toLowerCase().includes(userSearch.toLowerCase())
     );
+    setUsersFound(found);
   }, [userSearch, users]);
 
-  function addToCart(p) {
+  // Cart functions
+  const addToCart = (p) => {
     setCart((prev) => {
       const exists = prev.find((i) => i.id === p.id);
-      if (exists) {
+      if (exists)
         return prev.map((i) => (i.id === p.id ? { ...i, qty: i.qty + 1 } : i));
-      }
       return [...prev, { ...p, qty: 1 }];
     });
-  }
+  };
 
-  function removeOne(id) {
+  const removeOne = (id) => {
     setCart((prev) =>
       prev
         .map((i) => (i.id === id ? { ...i, qty: i.qty - 1 } : i))
         .filter((i) => i.qty > 0)
     );
-  }
+  };
 
-  function calculateTotal() {
-    return cart.reduce((sum, i) => sum + Number(i.price) * Number(i.qty), 0);
-  }
+  const calculateTotal = () =>
+    cart.reduce((sum, i) => sum + Number(i.price || 0) * Number(i.qty || 0), 0);
 
-  // ✅ NEW: create purchase in backend
-  async function assignPurchase() {
+  // Assign purchase or add to balance
+  const assignPurchase = async (type) => {
     if (!selectedUser || cart.length === 0) return;
 
-    const storeId = JSON.parse(localStorage.getItem("user")).id;
+    const store = JSON.parse(localStorage.getItem("user"));
+    if (!store?.id) return alert("Store not found!");
 
     const items = cart.map((i) => ({
-      product_id: i.id,
-      qty: i.qty,
+      product_id: Number(i.id),
+      qty: Number(i.qty),
       price: Number(i.price) || 0,
     }));
 
+    setLoading(true);
     try {
-      const res = await axios.post("http://127.0.0.1:5000/purchase", {
-        user_id: selectedUser.id,
-        store_id: storeId,
-        items,
-      });
+      const res = await axios.post(
+        "https://digitalledgerbackend-production.up.railway.app/purchase",
+        {
+          user_id: selectedUser.id,
+          store_id: store.id,
+          items,
+          type, // "pay" or "add"
+        }
+      );
 
-      // backend returns updated user row
       const updatedUser = res.data.user;
-
-      // update App users state (if you have it)
       updateUser(updatedUser);
-
-      // update local selected user so UI updates instantly
       setSelectedUser(updatedUser);
 
-      // reset UI
+      // Reset cart and search
       setCart([]);
       setUserSearch("");
       setUsersFound([]);
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      console.error(err.response?.data || err);
+      alert("Something went wrong. Check console for details.");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="w-full max-w-6xl mt-6 grid grid-cols-1 md:grid-cols-12 gap-4">
+      {/* Products */}
       <div className="md:col-span-8 flex flex-col h-[80vh]">
         <div className="flex flex-wrap gap-2 mb-4">
-          <button
-            onClick={() => setCategory("all")}
-            className={`px-4 py-2 rounded-full ${
-              category === "all" ? "bg-blue-500 text-white" : "bg-white border"
-            }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setCategory("snacks")}
-            className={`px-4 py-2 rounded-full ${
-              category === "snacks"
-                ? "bg-blue-500 text-white"
-                : "bg-white border"
-            }`}
-          >
-            Snacks
-          </button>
-          <button
-            onClick={() => setCategory("play")}
-            className={`px-4 py-2 rounded-full ${
-              category === "play" ? "bg-blue-500 text-white" : "bg-white border"
-            }`}
-          >
-            Play Time
-          </button>
-          <button
-            onClick={() => setCategory("hubbly")}
-            className={`px-4 py-2 rounded-full ${
-              category === "hubbly"
-                ? "bg-blue-500 text-white"
-                : "bg-white border"
-            }`}
-          >
-            Hubbly
-          </button>
+          {["all", "snacks", "play", "hubbly"].map((c) => (
+            <button
+              key={c}
+              onClick={() => setCategory(c)}
+              className={`px-4 py-2 rounded-full ${
+                category === c ? "bg-blue-500 text-white" : "bg-white border"
+              }`}
+            >
+              {c === "play"
+                ? "Play Time"
+                : c.charAt(0).toUpperCase() + c.slice(1)}
+            </button>
+          ))}
         </div>
 
         <input
@@ -172,6 +155,7 @@ export default function Home({ products, users, updateUser }) {
         </div>
       </div>
 
+      {/* Cart */}
       <div className="md:col-span-4 bg-white p-4 rounded-xl shadow border md:h-[80vh] flex flex-col">
         <h2 className="text-xl font-bold text-blue-600">Cart</h2>
 
@@ -210,6 +194,7 @@ export default function Home({ products, users, updateUser }) {
           <p className="font-semibold">Total: ${calculateTotal().toFixed(2)}</p>
         </div>
 
+        {/* User search */}
         <input
           type="text"
           placeholder="Search customer..."
@@ -243,17 +228,19 @@ export default function Home({ products, users, updateUser }) {
           </div>
         )}
 
-        {/* ✅ keep your two buttons visually, but both call same backend purchase for MVP */}
+        {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-2 mt-3">
           <button
+            disabled={loading}
             className="flex-1 bg-green-500 text-white p-2 rounded-full"
-            onClick={assignPurchase}
+            onClick={() => assignPurchase("pay")}
           >
             Paid Now
           </button>
           <button
+            disabled={loading}
             className="flex-1 bg-blue-500 text-white p-2 rounded-full"
-            onClick={assignPurchase}
+            onClick={() => assignPurchase("add")}
           >
             Add To Balance
           </button>

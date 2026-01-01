@@ -32,13 +32,16 @@ export default function AddProductModal({ isOpen, onClose, onAdd }) {
     const storeId = JSON.parse(localStorage.getItem("user")).id;
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/products", {
-        name: form.name.trim(),
-        price: Number(form.price) || 0,
-        type: form.type,
-        img: form.img, // ✅ base64 saved in DB
-        store_id: storeId,
-      });
+      const res = await axios.post(
+        "https://digitalledgerbackend-production.up.railway.app/products",
+        {
+          name: form.name.trim(),
+          price: Number(form.price) || 0,
+          type: form.type,
+          img: form.img, // ✅ base64 saved in DB
+          store_id: storeId,
+        }
+      );
 
       onAdd(res.data.product);
       setForm({ name: "", price: "", type: "snacks", img: null });
