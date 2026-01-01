@@ -17,6 +17,7 @@ export default function NavBar({ logout, currentUser }) {
   const isHomeActive = location.pathname === "/";
   const isUsersActive = location.pathname.startsWith("/users");
   const isProductsActive = location.pathname.startsWith("/products");
+  const isUserManagmentActive = location.pathname.startsWith("/user-managment");
 
   return (
     <nav className="bg-gray-100 p-3 mt-2 rounded-full shadow-lg text-gray-800 border border-gray-300 flex items-center justify-between w-full max-w-6xl relative">
@@ -48,6 +49,13 @@ export default function NavBar({ logout, currentUser }) {
           onClick={() => setOpen(false)}
         >
           Products
+        </Link>
+        <Link
+          to="/user-management"
+          className={isUserManagmentActive ? styles.activeLink : styles.link}
+          onClick={() => setOpen(false)}
+        >
+          Users managment
         </Link>
       </div>
 

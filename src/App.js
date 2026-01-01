@@ -3,8 +3,9 @@ import NavBar from "./components/NavBar";
 import Home from "./components/Home";
 import Products from "./components/ProductsPage/Products";
 import Users from "./components/usersPage/Users";
+import UserManagment from "./components/usersPage/UserManagment";
 import { useEffect, useState } from "react";
-import SignIn from "./auth/SignIn.js";
+import SignIn from "./auth/SignIn";
 import axios from "axios";
 
 function App() {
@@ -124,6 +125,7 @@ function App() {
                 }
               />
 
+              <Route path="/user-management" element={<UserManagment />} />
               <Route
                 path="/products"
                 element={
