@@ -76,7 +76,6 @@ export default function UserDetails({ user }) {
         ) : (
           <div className="space-y-2">
             {history.map((h) => {
-              const subtotal = Number(h.total) || 0;
               const price = Number(h.price) || 0;
 
               const dateText = h.created_at

@@ -8,22 +8,6 @@ export default function UserManagment() {
   const admin = JSON.parse(localStorage.getItem("user"));
   const storeId = admin?.id;
 
-  async function fetchUsers() {
-    try {
-      const res = await axios.get(
-        "https://digitalledgerbackend-production.up.railway.app/users",
-        {
-          params: { store_id: storeId },
-        }
-      );
-      setUsers(res.data.users);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function deleteUser(id) {
     if (!window.confirm("Delete this user?")) return;
 
@@ -38,8 +22,23 @@ export default function UserManagment() {
   }
 
   useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const res = await axios.get(
+          "https://digitalledgerbackend-production.up.railway.app/users",
+          {
+            params: { store_id: storeId },
+          }
+        );
+        setUsers(res.data.users);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
     fetchUsers();
-  }, []);
+  }, [storeId]);
 
   if (loading) {
     return (
